@@ -5,7 +5,7 @@
 
   "name": "Smart Card pass",
   "short_name": "cros-sc-pass",
-  "version": "0.8",
+  "version": "0.8.1",
   "description": "Fill in login forms using an OpenPGP-enabled Smart Card.",
   "author": "Fabian Henneke",
   "homepage_url": "https://github.com/FabianHenneke/cros-sc-pass",

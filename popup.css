@@ -106,7 +106,7 @@ body {
   padding: 6px;
   border: 0;
   border-bottom: 1px solid #bbb;
-  background: url("bower_components/material-design-icons/action/1x_web/ic_lock_open_24dp.png") center right 6px / 16px 16px no-repeat;
+  background: url("bower_components/material-design-icons/action/1x_web/ic_lock_open_black_24dp.png") center right 6px / 16px 16px no-repeat;
 }
 
 .pin-entry input[type="password"]:focus {
