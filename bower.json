@@ -4,7 +4,7 @@
   "authors": [
     "Fabian Henneke"
   ],
-  "description": "Fill in login forms using an OpenPGP-enabled Smart Card on Chrome OS.",
+  "description": "Fill in login forms using an OpenPGP-enabled Smart Card.",
   "main": "manifest.json",
   "keywords": [
     "smart card",
