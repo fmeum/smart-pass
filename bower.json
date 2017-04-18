@@ -1,0 +1,30 @@
+{
+  "name": "cros-sc-pass",
+  "homepage": "https://github.com/FabianHenneke/cros-sc-pass",
+  "authors": [
+    "Fabian Henneke"
+  ],
+  "description": "Fill in login forms using an OpenPGP-enabled Smart Card on Chrome OS.",
+  "main": "manifest.json",
+  "keywords": [
+    "smart card",
+    "cros",
+    "yubikey",
+    "pass",
+    "browserpass",
+    "passwords",
+    "drive"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "bower_components"
+  ],
+  "dependencies": {
+    "chrome-promise": "^2.0.2",
+    "openpgp": "^2.5.0",
+    "material-design-icons": "^3.0.1",
+    "mithril": "lhorie/mithril.js#^1.1.1"
+  }
+}

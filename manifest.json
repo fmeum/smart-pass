@@ -1,0 +1,61 @@
+{
+  "manifest_version": 2,
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAs+ENH/zOz3oqjvQDSdHrWtCnsWtnB/delOQUTWMK5nhnzyW/pnBd3OlkaI+fA8CinMeN+4GLp5FfeYAVlYAyBEDOdBpjFF1Y6CbYAjhuE8yhBq2GCddz4HqEMAKNwyLvO9Ecy+JWemZZphHlcla4YPwfwGyONFWkFahw3oaXalGApuTj1Nj6AEGBhLslmJaiK8XegSrzc6z+25eq73ddnJtud1ZVtMYp6JsnQ03LdA28zd0itZGeFh7kMVkDHKiY3FPwFUbWkx0rVcVgEsAGJBCjN6eUC42+CFSumPkjHHDVhCXA/H7DNkdtajrr6K4Ts1Q+LtTlEc8eiodCEj4uhwIDAQAB",
+  "minimum_chrome_version": "55",
+
+  "name": "Smart Card pass",
+  "short_name": "cros-sc-pass",
+  "version": "0.8",
+  "description": "Fill in login forms using an OpenPGP-enabled Smart Card.",
+  "author": "Fabian Henneke",
+  "homepage_url": "https://github.com/FabianHenneke/cros-sc-pass",
+  "icons": {
+    "24": "bower_components/material-design-icons/communication/1x_web/ic_vpn_key_black_24dp.png",
+    "48": "bower_components/material-design-icons/communication/1x_web/ic_vpn_key_black_48dp.png",
+    "96": "bower_components/material-design-icons/communication/2x_web/ic_vpn_key_black_48dp.png"
+  },
+
+  "background": {
+    "persistent": true,
+    "scripts": [
+      "bower_components/chrome-promise/chrome-promise.js",
+      "pinCache.js"
+    ]
+  },
+
+  "browser_action": {
+    "default_icon": {
+      "24": "bower_components/material-design-icons/communication/1x_web/ic_vpn_key_black_24dp.png"
+    },
+    "default_popup": "popup.html",
+    "default_title": "Login to page"
+  },
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+L",
+        "mac": "Command+Shift+L"
+      }
+    }
+  },
+
+  "permissions": [
+    "activeTab",
+    "clipboardWrite",
+    "contextMenus",
+    "identity",
+    "idle",
+
+    "https://www.googleapis.com/drive/v3/files/*",
+    "chrome://favicon/*",
+
+    "http://*/*",
+    "https://*/*"
+  ],
+  "oauth2": {
+    "client_id": "243577033205-0m38d05v85m26n235c2ft5gi3alcg4at.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/drive.readonly"
+    ]
+  }
+}
