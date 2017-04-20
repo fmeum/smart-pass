@@ -3,6 +3,8 @@ bower install
 python download-google-smart-card-client-library.py
 
 rm -rf build
+rm cros-sc-pass.zip
+
 mkdir build
 declare -a files=("popup.html"
                   "popup.js"
