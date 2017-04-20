@@ -7,8 +7,13 @@ body {
   font-size: 14px;
 }
 
-.domain {
+.domain-suffix {
   color: #999;
+}
+
+.domain-prefix {
+  color: #F00;
+  text-decoration: line-through;
 }
 
 .search input {

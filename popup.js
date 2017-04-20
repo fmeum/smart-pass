@@ -126,9 +126,13 @@
                   onclick: fetchPassword.bind(null, login, false),
                   style: `background-image: url('${faviconUrl}')`,
                   tabindex: tabindex
-                }, m.trust(
-                  `${login.username}<br/><span class='domain'>${AppState.currentDomain}</span>`
-                )),
+                }, [
+                  m.trust(login.username),
+                  m('br'),
+                  m('span.domain-prefix',
+                    login.domainPrefix + (login.domainPrefix ? '.' : '')),
+                  m('span.domain-suffix', login.domainSuffix)
+                ]),
                 m('button.login-copy', {
                   onclick: fetchPassword.bind(null, login, true),
                   tabindex: tabindex + AppState.currentLogins.length
@@ -257,23 +261,19 @@
         logError(error);
         return;
       }
-      let query =
-        `name = '${domain}' and trashed = false and mimeType = 'application/vnd.google-apps.folder'`;
-      let response = await fetch(
-          `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}`, {
-            method: 'GET',
-            headers: new Headers({
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            }),
-          })
-        .then(handleStatus);
-      const directories = await response.json();
-      for (const directory of directories.files) {
-        const directoryId = directory.id;
-        query =
-          `'${directoryId}' in parents and trashed = false and (mimeType = 'application/pgp-encrypted' or mimeType = 'application/pgp')`
-        response = await fetch(
+      const domainParts = domain.split('.');
+      for (let i = 0; i < domainParts.length; i++) {
+        // We do not split off the (last part of the) TLD, unless the domain does
+        // not contain a period (e.g. localhost).
+        if (i === domainParts.length - 1 && domainParts.length !== 1)
+          break;
+        const domainPrefix = domainParts.slice(0, i).join('.');
+        console.log(domainPrefix);
+        const domainSuffix = domainParts.slice(i).join('.');
+        console.log(domainSuffix);
+        let query =
+          `name = '${domainSuffix}' and trashed = false and mimeType = 'application/vnd.google-apps.folder'`;
+        let response = await fetch(
             `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}`, {
               method: 'GET',
               headers: new Headers({
@@ -282,15 +282,32 @@
               }),
             })
           .then(handleStatus);
-        const passFiles = await response.json();
-        for (const passFile of passFiles.files) {
-          const loginId = passFile.id;
-          const username = passFile.name.substring(0, passFile.name.length -
-            4);
-          logins.push({
-            username,
-            loginId
-          });
+        const directories = await response.json();
+        for (const directory of directories.files) {
+          const directoryId = directory.id;
+          query =
+            `'${directoryId}' in parents and trashed = false and (mimeType = 'application/pgp-encrypted' or mimeType = 'application/pgp')`
+          response = await fetch(
+              `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}`, {
+                method: 'GET',
+                headers: new Headers({
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+                }),
+              })
+            .then(handleStatus);
+          const passFiles = await response.json();
+          for (const passFile of passFiles.files) {
+            const loginId = passFile.id;
+            const username = passFile.name.substring(0, passFile.name.length -
+              4);
+            logins.push({
+              username,
+              loginId,
+              domainPrefix,
+              domainSuffix
+            });
+          }
         }
       }
     } catch (error) {
