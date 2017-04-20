@@ -41,6 +41,7 @@
 
   "permissions": [
     "activeTab",
+    "clipboardRead",
     "clipboardWrite",
     "contextMenus",
     "identity",

@@ -297,13 +297,24 @@
     AppState.state = State.SHOWING_LOGINS;
   }
 
-  function copyToClipboard(text, copyDuration) {
-    const copyProxy = document.createElement('textarea');
-    copyProxy.textContent = text;
-    document.body.appendChild(copyProxy);
-    copyProxy.select();
-    document.execCommand('copy');
-    document.body.removeChild(copyProxy);
+  async function copyToClipboard(text, copyDuration) {
+    // Replace clipboard content, keep a copy around
+    const pastePromise = new Promise(resolve =>
+      document.addEventListener('paste', function(event) {
+        resolve(event.clipboardData.getData('text/plain'));
+        event.preventDefault();
+      }, true)
+    );
+    document.execCommand('paste');
+    const oldContent = await pastePromise;
+
+    document.addEventListener('copy', function(event) {
+      event.clipboardData.setData('text/plain', text);
+      event.preventDefault();
+    }, true);
+    // TODO: Find out why the setTimeout is necessary. The event listener is
+    // never called if we don't use it.
+    setTimeout(() => document.execCommand('copy'), 1);
 
     showMessage(`Password copied to clipboard for ${copyDuration}s.`);
 
@@ -318,13 +329,12 @@
         window.onbeforeunload = null;
         clearTimeout(timer);
 
-        const copyProxy = document.createElement('textarea');
-        // NOTE: Can't copy empty string this way
-        copyProxy.textContent = ' ';
-        document.body.appendChild(copyProxy);
-        copyProxy.select();
-        document.execCommand('copy');
-        document.body.removeChild(copyProxy);
+        // Restore old content to clipboard
+        document.addEventListener('copy', function(event) {
+          event.clipboardData.setData('text/plain', ${JSON.stringify(oldContent)});
+          event.preventDefault();
+        }, true);
+        document.execCommand('copy', false, null);
 
         // Don't show a warning message preventing the user from closing the tab
         return null;
