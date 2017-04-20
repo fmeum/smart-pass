@@ -55,6 +55,7 @@
     currentDomain: '',
     currentUrl: '',
     currentLogins: [],
+    hasSearched: false,
 
     pinCallback: null,
     triesRemaining: 0,
@@ -196,15 +197,19 @@
 
   async function submitSearchForm(e) {
     e.preventDefault();
+    if (AppState.state == State.SEARCHING)
+      return;
     const searchBox = e.srcElement.firstChild;
     if (searchBox.value) {
       await fetchLogins(searchBox.value);
     } else {
-      // Auto-fill the only login if user hits enter in empty search field
-      if (AppState.currentLogins.length === 1) {
+      // Auto-fill the only login if user hits enter in empty search field and
+      // has not searched yet.
+      if (AppState.currentLogins.length === 1 && !AppState.hasSearched) {
         fetchPassword(AppState.currentLogins[0], false);
       }
     }
+    AppState.hasSearched = true;
   }
 
   async function init(tab) {
