@@ -349,12 +349,12 @@
       timer = setTimeout(eraseClipboard, ${copyDuration * 1000});
     })();
     `;
-    chrome.tabs.executeScript({
+    await chromep.tabs.executeScript({
       code: eraseClipboardCode
     });
   }
 
-  function fillLoginForm(username, password) {
+  async function fillLoginForm(username, password) {
     // Do not send login data to page if URL changed during search.
     if (AppState.activeTab.url != AppState.currentUrl) {
       showMessage('Page URL changed during search.');
@@ -431,7 +431,7 @@
     // to inject the autofill code into all frames and use the first visible
     // password field. Being able to set allFrames to true is all we need the
     // http(s)://*/* permission for.
-    chrome.tabs.executeScript({
+    await chromep.tabs.executeScript({
       code: autoFillCode,
       allFrames: true
     });
@@ -814,9 +814,9 @@
         password = util.bin2str(decryptedMessage.packets[0].data);
 
       if (copy) {
-        copyToClipboard(password, 30);
+        await copyToClipboard(password, 30);
       } else {
-        fillLoginForm(login.username, password);
+        await fillLoginForm(login.username, password);
       }
     } catch (error) {
       showMessage('Failed to fetch logins from Google Drive.');
