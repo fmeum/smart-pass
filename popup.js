@@ -435,7 +435,7 @@
           && style.visibility !== 'hidden'
           && el.offsetWidth > 0
           && el.offsetHeight > 0
-          && el.getClientRects().length;
+          && el.getClientRects().length > 0;
       }
 
       function visiblePasswordFields(form) {
@@ -460,20 +460,20 @@
         return firstVisiblePasswordField().closest('fieldset') || form();
       }
 
+      function fields(selector) {
+        return formOrFieldset().querySelectorAll(selector)
+          || form().querySelectorAll(selector);
+      }
+
       function field(selector) {
-        return formOrFieldset().querySelector(selector)
-          || form().querySelector(selector)
-          || document.createElement('input');
+        return fields(selector)[0] || document.createElement('input');
       }
 
       function update(el, value) {
         if (!value.length)
           return false;
-
-        el.setAttribute('value', value);
         el.value = value;
-
-        const eventNames = ['click', 'focus', 'keyup', 'keydown', 'change', 'blur'];
+        const eventNames = ['click', 'focus', 'keyup', 'keydown', 'change', 'blur', 'input'];
         eventNames.forEach(function(eventName) {
           el.dispatchEvent(new Event(eventName, {'bubbles': true}));
         });
@@ -486,8 +486,16 @@
       const passwordFields = visiblePasswordFields(formOrFieldset());
       if (passwordFields.length > 1)
         passwordFields[1].select();
-      else
-        field('[type=submit]').click();
+      else {
+        let submitButton = document.createElement('button');
+        if (fields('[type=submit]').length === 1) {
+          submitButton = field('[type=submit]');
+        } else if (fields('button').length === 1) {
+          submitButton = field('button');
+        }
+        // Wait for events triggered by simulated user input to settle
+        setTimeout(() => submitButton.click(), 100);
+      }
     })();
     `;
     // Some login forms are not part of the top frame. This makes it necessary
