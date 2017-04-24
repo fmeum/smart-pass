@@ -118,19 +118,19 @@
         case State.SHOWING_LOGINS:
           let results = [];
           if (AppState.currentLogins.length > 0) {
-            const faviconUrl = getFaviconUrl(AppState.currentDomain);
             let tabindex = 1;
             for (const login of AppState.currentLogins) {
               results.push(m('div.login', [
                 m('button.login-auto', {
                   onclick: fetchPassword.bind(null, login, false),
-                  style: `background-image: url('${faviconUrl}')`,
+                  style: `background-image: url('${login.faviconUrl}')`,
                   tabindex: tabindex
                 }, [
                   m.trust(login.username),
                   m('br'),
                   m('span.domain-prefix',
-                    login.domainPrefix + (login.domainPrefix ? '.' : '')),
+                    login.domainPrefix + (login.domainPrefix ? '.' :
+                      '')),
                   m('span.domain-suffix', login.domainSuffix)
                 ]),
                 m('button.login-copy', {
@@ -188,15 +188,36 @@
     AppState.state = State.SHOWING_MESSAGE;
   }
 
-  function getFaviconUrl(domain) {
-    // Use current favicon for logins for current tab
-    if (AppState.activeTab && AppState.activeTab.favIconUrl && AppState.activeTab
-      .favIconUrl.indexOf(domain) > -1) {
+  const CHROME_EMPTY_PAGE_FAVICON_BASE64 =
+    `77+9UE5HDQoaCgAAAA1JSERSAAAAEAAAABAIBAAAAO+/ve+/vTfvv70AAAAySURBVHgBYyASRO+/vUfvv70NWBUgKX0Q1YBXQe+/vQLvv70S77+9MDIL77+9BO+/vQIYRFfvv70GRu+/vQJMSGQ8AwBs77+9Q1Pvv70dCDkAAAAASUVORO+/vUJg77+9`;
+
+  // https://developer.mozilla.org/en-US/docs/Web/API/WindowBase64/Base64_encoding_and_decoding#Solution_1_–_escaping_the_string_before_encoding_it
+  function b64EncodeUnicode(str) {
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(
+      match, p1) {
+      return String.fromCharCode('0x' + p1);
+    }));
+  }
+
+  async function getFaviconUrl(domain) {
+    // Use current favicon for logins for current tab and domain
+    if (AppState.activeTab &&
+      AppState.activeTab.favIconUrl &&
+      extractHostname(AppState.activeTab.favIconUrl) === domain) {
       return AppState.activeTab.favIconUrl;
     }
     // Use cached favicons for all other logins, assuming https. Default icon is
-    // an empty page.
-    return `chrome://favicon/https://${domain}`;
+    // an empty page. If '<domain>' results in the default icon, we assume
+    // that the correct domain is 'www.<domain>'.
+    let faviconUrl = `chrome://favicon/https://${domain}`;
+    const faviconBase64 = await m.request({
+      method: 'GET',
+      url: faviconUrl,
+      deserialize: response => b64EncodeUnicode(response)
+    });
+    if (faviconBase64 === CHROME_EMPTY_PAGE_FAVICON_BASE64)
+      faviconUrl = `chrome://favicon/https://www.${domain}`;
+    return faviconUrl;
   }
 
   async function submitSearchForm(e) {
@@ -216,16 +237,19 @@
     AppState.hasSearched = true;
   }
 
+  function extractHostname(domain) {
+    const a = document.createElement('a');
+    a.href = domain;
+    return a.hostname.replace('www.', '');
+  }
+
   async function init(tab) {
     // do nothing if called from a non-tab context
     if (!tab || !tab.url) {
       return;
     }
     AppState.activeTab = tab;
-    // Create dummy <a> element to extract hostname from URL
-    const a = document.createElement('a');
-    a.href = AppState.activeTab.url;
-    AppState.currentDomain = a.hostname.replace('www.', '');
+    AppState.currentDomain = extractHostname(AppState.activeTab.url);
     if (AppState.currentDomain) {
       await fetchLogins(AppState.currentDomain);
     }
@@ -261,60 +285,82 @@
         logError(error);
         return;
       }
+      // If the current domain is e.g. (www.)a.b.c.com, we search for logins for
+      // the domains:
+      // a.b.c.com, b.c.com, c.com
       const domainParts = domain.split('.');
+      let domainSplittings = [];
       for (let i = 0; i < domainParts.length; i++) {
         // We do not split off the (last part of the) TLD, unless the domain does
         // not contain a period (e.g. localhost).
         if (i === domainParts.length - 1 && domainParts.length !== 1)
           break;
         const domainPrefix = domainParts.slice(0, i).join('.');
-        console.log(domainPrefix);
         const domainSuffix = domainParts.slice(i).join('.');
-        console.log(domainSuffix);
-        let query =
+        domainSplittings.push([domainPrefix, domainSuffix]);
+      }
+      await Promise.all(domainSplittings.map(async function(splitting) {
+        const [domainPrefix, domainSuffix] = splitting;
+        const faviconUrl = await getFaviconUrl(domainSuffix);
+        const query =
           `name = '${domainSuffix}' and trashed = false and mimeType = 'application/vnd.google-apps.folder'`;
-        let response = await fetch(
+        const response = await fetch(
             `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}`, {
               method: 'GET',
               headers: new Headers({
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
-              }),
+              })
             })
           .then(handleStatus);
         const directories = await response.json();
-        for (const directory of directories.files) {
+        await Promise.all(directories.files.map(async function(
+          directory) {
           const directoryId = directory.id;
-          query =
-            `'${directoryId}' in parents and trashed = false and (mimeType = 'application/pgp-encrypted' or mimeType = 'application/pgp')`
-          response = await fetch(
-              `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}`, {
+          const loginQuery =
+            `'${directoryId}' in parents and trashed = false and (mimeType = 'application/pgp-encrypted' or mimeType = 'application/pgp')`;
+          const loginResponse = await fetch(
+              `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(loginQuery)}`, {
                 method: 'GET',
                 headers: new Headers({
                   'Content-Type': 'application/json',
                   'Authorization': `Bearer ${token}`
-                }),
+                })
               })
             .then(handleStatus);
-          const passFiles = await response.json();
+          const passFiles = await loginResponse.json();
           for (const passFile of passFiles.files) {
             const loginId = passFile.id;
-            const username = passFile.name.substring(0, passFile.name.length -
-              4);
+            const username = passFile.name.substring(0, passFile.name
+              .length - 4);
             logins.push({
               username,
               loginId,
               domainPrefix,
-              domainSuffix
+              domainSuffix,
+              faviconUrl
             });
           }
-        }
-      }
+        }));
+      }));
     } catch (error) {
       showMessage('Failed to fetch logins from Google Drive.');
       logError(error);
       return;
     }
+    // Sort logins first by decreasing length of domain prefix, then by
+    // username and as a last resort by Google Drive ID. This maintains a
+    // deterministic ordering of the logins even though we fetch them
+    // asynchronously.
+    logins.sort(function(a, b) {
+      if (a.domainPrefix.length !== b.domainPrefix.length)
+        return a.domainPrefix.length - b.domainPrefix.length;
+
+      if (a.username !== b.username)
+        return a.username.localeCompare(b.username);
+
+      return a.loginId.compare(b.loginId);
+    });
     AppState.currentLogins = logins;
     AppState.state = State.SHOWING_LOGINS;
   }
