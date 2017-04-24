@@ -1,10 +1,10 @@
-SmartPass
-=========
+smart-pass
+==========
 
-SmartPass is a Chrome/Chromium extension that automatically fills login forms with passwords encrypted using OpenPGP-enabled smart card. The encrypted password files are fetched from Google Drive and decrypted on the smart card using the [Smart Card Connector](https://chrome.google.com/webstore/detail/smart-card-connector/khpfeaanjngmcnplbdlpegiifgpfgdco) extension. As all operations run either directly on the smart card or in the browser, the extension can be used in cases where a full gpg/smart card stack cannot be installed, e.g., under Chrome OS or without admin/root privileges.
+smart-pass is a Chrome/Chromium extension that automatically fills login forms with passwords encrypted using OpenPGP-enabled smart card. The encrypted password files are fetched from Google Drive and decrypted on the smart card using the [Smart Card Connector](https://chrome.google.com/webstore/detail/smart-card-connector/khpfeaanjngmcnplbdlpegiifgpfgdco) extension. As all operations run either directly on the smart card or in the browser, the extension can be used in cases where a full gpg/smart card stack cannot be installed, e.g., under Chrome OS or without admin/root privileges.
 Password stores can be maintained with [zx2c4's pass](https://www.passwordstore.org) and uploaded to Google Drive using the web UI or a command line tool such as [drive](https://github.com/odeke-em/drive).
 
-SmartPass is based on [browserpass](https://github.com/dannyvankooten/browserpass) and compatible with one of its two storage formats for passwords.
+smart-pass is based on [browserpass](https://github.com/dannyvankooten/browserpass) and compatible with one of its two storage formats for passwords.
 
 ## Requirements
   * An OpenPGP-enabled smart card such as
