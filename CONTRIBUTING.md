@@ -9,6 +9,7 @@ Run `build.sh`. This will
   2. download the [Google Smart Card Client library](https://github.com/GoogleChrome/chromeos_smart_card_connector/releases),
   3. copy all resources into the `build` folder,
   4. compress the contents of the `build` folder into a ZIP file.
+  
 In order to load the extension into Chrome, activate `Developer mode` on `chrome://extensions` and select the `build` folder after clicking on `Load unpacked extension...`.
 
 ## Contributing
