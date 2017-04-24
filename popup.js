@@ -13,7 +13,7 @@
    *
    * Currently this is only used for the debug logs produced by the server App.
    */
-  const CLIENT_TITLE = 'cros-sc-pass';
+  const CLIENT_TITLE = 'smart-pass';
 
   /**
    * Identifier of the server App.

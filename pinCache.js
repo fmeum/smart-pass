@@ -3,7 +3,7 @@
   
   const chromep = new ChromePromise();
   
-  const MENU_ID_CLEAR_CACHE = 'cros-sc-pass.clear-cache';
+  const MENU_ID_CLEAR_CACHE = 'smart-pass.clear-cache';
   
   let pinCache = {}; 
   

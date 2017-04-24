@@ -3,7 +3,7 @@ bower install
 python download-google-smart-card-client-library.py
 
 rm -rf build
-rm cros-sc-pass.zip
+rm smart-pass.zip
 
 mkdir build
 declare -a files=("popup.html"
@@ -24,7 +24,7 @@ declare -a files=("popup.html"
                   "bower_components/material-design-icons/hardware/1x_web/ic_sim_card_black_24dp.png")
 
 cp --parents "${files[@]}" build/
-cp LICENSE_build build/LICENSE
+cp LICENSE.build build/LICENSE
 
 cd build
-zip -r ../cros-sc-pass.zip *
+zip -r ../smart-pass.zip *

@@ -1,19 +1,21 @@
 {
-  "name": "cros-sc-pass",
-  "homepage": "https://github.com/FabianHenneke/cros-sc-pass",
+  "name": "smart-pass",
+  "homepage": "https://github.com/FabianHenneke/smart-pass",
   "authors": [
     "Fabian Henneke"
   ],
-  "description": "Fill in login forms using an OpenPGP-enabled Smart Card.",
+  "description": "Fill in login forms using an OpenPGP-enabled Smart Card",
   "main": "manifest.json",
   "keywords": [
     "smart card",
     "cros",
+    "chrome os",
     "yubikey",
+    "nitrokey",
     "pass",
-    "browserpass",
     "passwords",
-    "drive"
+    "drive",
+    "password manager"
   ],
   "license": "MIT",
   "private": true,
