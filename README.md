@@ -6,6 +6,8 @@ Password stores can be maintained with [zx2c4's pass](https://www.passwordstore.
 
 smart-pass is based on [browserpass](https://github.com/dannyvankooten/browserpass) and compatible with one of its two storage formats for passwords.
 
+![Using smart-pass](https://github.com/FabianHenneke/smart-pass/raw/master/assets/how_to_use.gif)
+
 ## Requirements
   * An OpenPGP-enabled smart card such as
     * a [YubiKey](https://www.yubico.com/products/yubikey-hardware/)
