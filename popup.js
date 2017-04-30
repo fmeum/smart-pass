@@ -461,8 +461,11 @@
       }
 
       function fields(selector) {
-        return formOrFieldset().querySelectorAll(selector)
-          || form().querySelectorAll(selector);
+        const fields = formOrFieldset().querySelectorAll(selector);
+        if (fields.length > 0)
+          return fields;
+        else
+          return form().querySelectorAll(selector);
       }
 
       function field(selector) {
