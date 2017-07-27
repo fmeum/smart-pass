@@ -222,7 +222,7 @@
 
   async function submitSearchForm(e) {
     e.preventDefault();
-    if (AppState.state == State.SEARCHING)
+    if (AppState.state === State.SEARCHING)
       return;
     const searchBox = e.srcElement.firstChild;
     if (searchBox.value) {
@@ -380,7 +380,7 @@
 
   async function fillLoginForm(username, password) {
     // Do not send login data to page if URL changed during search.
-    if (AppState.activeTab.url != AppState.currentUrl) {
+    if (AppState.activeTab.url !== AppState.currentUrl) {
       showMessage('Page URL changed during search.');
       return;
     }
