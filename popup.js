@@ -689,7 +689,7 @@
             throw Error('First byte of the tag number is 0');
           tagNumber = 0;
           do {
-            tagNumber = (tagNumber << 7) + bytes[pos] & 0b01111111;
+            tagNumber = (tagNumber << 7) + (bytes[pos] & 0b01111111);
             ++numTagNumberBytes;
           } while (bytes[pos++] & (1 << 7));
         }
