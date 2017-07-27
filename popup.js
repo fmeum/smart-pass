@@ -365,56 +365,17 @@
     AppState.state = State.SHOWING_LOGINS;
   }
 
-  async function copyToClipboard(text, copyDuration) {
-    // Replace clipboard content, keep a copy around
-    const pastePromise = new Promise(resolve =>
-      document.addEventListener('paste', function(event) {
-        resolve(event.clipboardData.getData('text/plain'));
-        event.preventDefault();
-      }, true)
-    );
-    document.execCommand('paste');
-    const oldContent = await pastePromise;
-
+  async function copyToClipboard(text) {
     document.addEventListener('copy', function(event) {
       event.clipboardData.setData('text/plain', text);
       event.preventDefault();
-    }, true);
+    });
     // TODO: Find out why the setTimeout is necessary. The event listener is
     // never called if we don't use it.
     setTimeout(() => document.execCommand('copy'), 1);
 
-    showMessage(`Password copied to clipboard for ${copyDuration}s.`);
-
-    const eraseClipboardCode =
-      `
-    (function() {
-      'use strict';
-
-      let timer;
-
-      function eraseClipboard() {
-        window.onbeforeunload = null;
-        clearTimeout(timer);
-
-        // Restore old content to clipboard
-        document.addEventListener('copy', function(event) {
-          event.clipboardData.setData('text/plain', ${JSON.stringify(oldContent)});
-          event.preventDefault();
-        }, true);
-        document.execCommand('copy', false, null);
-
-        // Don't show a warning message preventing the user from closing the tab
-        return null;
-      }
-
-      window.onbeforeunload = e => eraseClipboard();
-      timer = setTimeout(eraseClipboard, ${copyDuration * 1000});
-    })();
-    `;
-    await chromep.tabs.executeScript({
-      code: eraseClipboardCode
-    });
+    chrome.alarms.create('clearClipboard', {delayInMinutes: 1});
+    showMessage(`Password copied to clipboard for 60s.`);
   }
 
   async function fillLoginForm(username, password) {
@@ -888,7 +849,7 @@
         password = util.bin2str(decryptedMessage.packets[0].data);
 
       if (copy) {
-        await copyToClipboard(password, 30);
+        await copyToClipboard(password);
       } else {
         await fillLoginForm(login.username, password);
       }

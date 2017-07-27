@@ -6,7 +6,8 @@ rm -rf build
 rm smart-pass.zip
 
 mkdir build
-declare -a files=("popup.html"
+declare -a files=("background.js"
+                  "popup.html"
                   "popup.js"
                   "popup.css"
                   "pinCache.js"

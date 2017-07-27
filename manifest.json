@@ -18,7 +18,8 @@
     "persistent": true,
     "scripts": [
       "bower_components/chrome-promise/chrome-promise.js",
-      "pinCache.js"
+      "pinCache.js",
+      "background.js"
     ]
   },
 
@@ -40,7 +41,7 @@
 
   "permissions": [
     "activeTab",
-    "clipboardRead",
+    "alarms",
     "clipboardWrite",
     "contextMenus",
     "identity",
