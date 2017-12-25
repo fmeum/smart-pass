@@ -9,15 +9,15 @@
   "author": "Fabian Henneke",
   "homepage_url": "https://github.com/FabianHenneke/smart-pass",
   "icons": {
-    "24": "bower_components/material-design-icons/communication/1x_web/ic_vpn_key_black_24dp.png",
-    "48": "bower_components/material-design-icons/communication/1x_web/ic_vpn_key_black_48dp.png",
-    "96": "bower_components/material-design-icons/communication/2x_web/ic_vpn_key_black_48dp.png"
+    "24": "node_modules/material-design-icons/communication/1x_web/ic_vpn_key_black_24dp.png",
+    "48": "node_modules/material-design-icons/communication/1x_web/ic_vpn_key_black_48dp.png",
+    "96": "node_modules/material-design-icons/communication/2x_web/ic_vpn_key_black_48dp.png"
   },
 
   "background": {
     "persistent": true,
     "scripts": [
-      "bower_components/chrome-promise/chrome-promise.js",
+      "node_modules/chrome-promise/chrome-promise.js",
       "pinCache.js",
       "background.js"
     ]
@@ -25,7 +25,7 @@
 
   "browser_action": {
     "default_icon": {
-      "24": "bower_components/material-design-icons/communication/1x_web/ic_vpn_key_black_24dp.png"
+      "24": "node_modules/material-design-icons/communication/1x_web/ic_vpn_key_black_24dp.png"
     },
     "default_popup": "popup.html",
     "default_title": "Login to page"

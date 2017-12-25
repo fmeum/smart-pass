@@ -1,11 +1,11 @@
 Contributing
 ============
 
-SmartPass uses [bower](https://bower.io/) to manage its dependencies.
+SmartPass uses [yarn](https://yarnpkg.com/) to manage its dependencies.
 
 ## Building
 Run `build.sh`. This will
-  1. install bower dependencies,
+  1. install yarn dependencies,
   2. download the [Google Smart Card Client library](https://github.com/GoogleChrome/chromeos_smart_card_connector/releases),
   3. copy all resources into the `build` folder,
   4. compress the contents of the `build` folder into a ZIP file.

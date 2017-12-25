@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-bower install
+yarn install
 python download-google-smart-card-client-library.py
 
 rm -rf build
@@ -13,16 +13,16 @@ declare -a files=("background.js"
                   "pinCache.js"
                   "manifest.json"
                   "google-smart-card-client-library.js"
-                  "bower_components/mithril/mithril.min.js"
-                  "bower_components/chrome-promise/chrome-promise.js"
-                  "bower_components/openpgp/dist/openpgp.min.js"
-                  "bower_components/material-design-icons/action/1x_web/ic_search_black_24dp.png"
-                  "bower_components/material-design-icons/action/1x_web/ic_lock_open_black_24dp.png"
-                  "bower_components/material-design-icons/communication/1x_web/ic_vpn_key_black_24dp.png"
-                  "bower_components/material-design-icons/communication/1x_web/ic_vpn_key_black_48dp.png"
-                  "bower_components/material-design-icons/communication/2x_web/ic_vpn_key_black_48dp.png"
-                  "bower_components/material-design-icons/content/1x_web/ic_content_copy_black_24dp.png"
-                  "bower_components/material-design-icons/hardware/1x_web/ic_sim_card_black_24dp.png")
+                  "node_modules/mithril/mithril.min.js"
+                  "node_modules/chrome-promise/chrome-promise.js"
+                  "node_modules/openpgp/dist/openpgp.min.js"
+                  "node_modules/material-design-icons/action/1x_web/ic_search_black_24dp.png"
+                  "node_modules/material-design-icons/action/1x_web/ic_lock_open_black_24dp.png"
+                  "node_modules/material-design-icons/communication/1x_web/ic_vpn_key_black_24dp.png"
+                  "node_modules/material-design-icons/communication/1x_web/ic_vpn_key_black_48dp.png"
+                  "node_modules/material-design-icons/communication/2x_web/ic_vpn_key_black_48dp.png"
+                  "node_modules/material-design-icons/content/1x_web/ic_content_copy_black_24dp.png"
+                  "node_modules/material-design-icons/hardware/1x_web/ic_sim_card_black_24dp.png")
 
 cp --parents "${files[@]}" build/
 cp LICENSE.build build/LICENSE

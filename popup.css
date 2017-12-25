@@ -22,7 +22,7 @@ body {
   padding: 6px;
   border: 0;
   border-bottom: 1px solid #bbb;
-  background: url("bower_components/material-design-icons/action/1x_web/ic_search_black_24dp.png") center right 6px / 16px 16px no-repeat;
+  background: url("node_modules/material-design-icons/action/1x_web/ic_search_black_24dp.png") center right 6px / 16px 16px no-repeat;
   padding-right: 20px;
 }
 
@@ -64,7 +64,7 @@ body {
   border: 0;
   border-bottom: 1px dotted #ccc;
   text-align: left;
-  background: white url("bower_components/material-design-icons/content/1x_web/ic_content_copy_black_24dp.png") center center / 24px 24px no-repeat;
+  background: white url("node_modules/material-design-icons/content/1x_web/ic_content_copy_black_24dp.png") center center / 24px 24px no-repeat;
   line-height: 1.2;
 }
 
@@ -111,7 +111,7 @@ body {
   padding: 6px;
   border: 0;
   border-bottom: 1px solid #bbb;
-  background: url("bower_components/material-design-icons/action/1x_web/ic_lock_open_black_24dp.png") center right 6px / 16px 16px no-repeat;
+  background: url("node_modules/material-design-icons/action/1x_web/ic_lock_open_black_24dp.png") center right 6px / 16px 16px no-repeat;
 }
 
 .pin-entry input[type="password"]:focus {
@@ -137,11 +137,11 @@ body {
 }
 
 .info .fingerprint-info {
-  background: url("bower_components/material-design-icons/communication/1x_web/ic_vpn_key_black_24dp.png") center left 2px / 16px 16px no-repeat;
+  background: url("node_modules/material-design-icons/communication/1x_web/ic_vpn_key_black_24dp.png") center left 2px / 16px 16px no-repeat;
   padding: 6px 6px 6px 20px;
 }
 
 .info .reader-info {
-  background: url("bower_components/material-design-icons/hardware/1x_web/ic_sim_card_black_24dp.png") center left 2px / 16px 16px no-repeat;
+  background: url("node_modules/material-design-icons/hardware/1x_web/ic_sim_card_black_24dp.png") center left 2px / 16px 16px no-repeat;
   padding: 6px 6px 6px 20px;
 }

@@ -1,4 +1,4 @@
 build/
-bower_components/
+node_modules/
 smart-pass.zip
 google-smart-card-client-library.js
