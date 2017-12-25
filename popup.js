@@ -240,7 +240,7 @@
   function extractHostname(domain) {
     const a = document.createElement('a');
     a.href = domain;
-    return a.hostname.replace('www.', '');
+    return a.hostname.replace(/^www\./, '');
   }
 
   async function init(tab) {
