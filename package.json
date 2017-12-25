@@ -1,6 +1,6 @@
 {
   "name": "smart-pass",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "description": "Fill in login forms using an OpenPGP-enabled smart card",
   "main": "background.js",
   "repository": "https://github.com/FabianHenneke/smart-pass",
