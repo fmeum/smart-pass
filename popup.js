@@ -318,7 +318,7 @@
           directory) {
           const directoryId = directory.id;
           const loginQuery =
-            `'${directoryId}' in parents and trashed = false and (mimeType = 'application/pgp-encrypted' or mimeType = 'application/pgp')`;
+            `'${directoryId}' in parents and trashed = false and (mimeType = 'application/pgp-encrypted' or mimeType = 'application/pgp' or mimeType = 'application/pgp-signature' or mimeType = 'application/gpg-signature' or mimeType = 'application/gpg' or mimeType = 'application/gpg-encrypted')`;
           const loginResponse = await fetch(
               `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(loginQuery)}`, {
                 method: 'GET',
