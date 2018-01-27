@@ -12,7 +12,7 @@ smart-pass is based on [browserpass](https://github.com/dannyvankooten/browserpa
   * An OpenPGP-enabled smart card such as
     * a [YubiKey](https://www.yubico.com/products/yubikey-hardware/)
     * a [Nitrokey](https://www.nitrokey.com/)
-    * the [OpenPGP Smartcard](http://shop.kernelconcepts.de/#openpgp)
+    * ~~the [OpenPGP Smartcard](http://shop.kernelconcepts.de/#openpgp)~~ (currently broken) 
     * ...
   * A password store on Google Drive, consisting of `gpg`-encrypted password files adhering to the format outlined below
 
