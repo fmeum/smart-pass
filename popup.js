@@ -848,6 +848,9 @@
       else
         password = util.bin2str(decryptedMessage.packets[0].data);
 
+      // Remove trailing carriage returns and line feeds
+      password = password.replace(/[\n\r]+$/g, '');
+
       if (copy) {
         await copyToClipboard(password);
       } else {
