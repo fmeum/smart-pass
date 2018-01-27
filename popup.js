@@ -784,7 +784,7 @@
     } catch (error) {
       showMessage(
         'Please install the <a href="https://chrome.google.com/webstore/detail/smart-card-connector/khpfeaanjngmcnplbdlpegiifgpfgdco" target="_blank">Smart Card Connector extension</a>.'
-      )
+      );
       logError(error);
       return;
     }
@@ -812,7 +812,7 @@
           pgpMessage = openpgp.message.readArmored(util.bin2str(
             encryptedPassword));
         } catch (error) {
-          showMessage('Encrypted file is malformed.')
+          showMessage('Encrypted file is malformed.');
           logError(error);
           return;
         }
