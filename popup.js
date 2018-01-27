@@ -359,7 +359,7 @@
       if (a.username !== b.username)
         return a.username.localeCompare(b.username);
 
-      return a.loginId.compare(b.loginId);
+      return a.loginId.localeCompare(b.loginId);
     });
     AppState.currentLogins = logins;
     AppState.state = State.SHOWING_LOGINS;
