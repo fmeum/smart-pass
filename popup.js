@@ -491,6 +491,12 @@
         return 'YubiKey NEO';
       else if (this.reader.includes('Yubikey 4'))
         return 'YubiKey 4';
+      else if (this.reader.includes('Nitrokey Start'))
+        return 'Nitrokey Start';
+      else if (this.reader.includes('Nitrokey Pro'))
+        return 'Nitrokey Pro';
+      else if (this.reader.includes('Nitrokey Storage'))
+        return 'Nitrokey Storage';
       else
         return this.reader;
     }
