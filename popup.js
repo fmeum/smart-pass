@@ -499,6 +499,10 @@
         return 'Nitrokey Pro';
       else if (this.reader.includes('Nitrokey Storage'))
         return 'Nitrokey Storage';
+      else if (this.reader.includes('Gemalto USB Shell Token'))
+        return 'Gemalto Shell Token';
+      else if (this.reader.includes('Gemalto PC Twin Reader'))
+        return 'Gemalto Twin Reader';
       else
         return this.reader;
     }
