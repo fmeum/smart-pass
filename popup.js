@@ -717,21 +717,31 @@
       }
     }
 
-    static fromBytesWithStart(bytes, start) {
+    static fromBytesInRange(bytes, start = 0, end = bytes.length) {
       let pos = start;
-      if (pos < bytes.length) {
+      // Skip 0x00 and 0xFF bytes before and between tags.
+      while (pos < end && (bytes[pos] === 0x00 || bytes[pos] === 0xFF)) {
+        ++pos;
+      }
+      if (pos >= end) {
+        return [null, start];
+      }
+
         const dataObject = new DataObject();
         const tagByte = bytes[pos++];
         dataObject.tagClass = tagByte >>> 6;
-        dataObject.tagClassDescription = DATA_OBJECT_TAG_CLASS[dataObject.tagClass];
+      dataObject.tagClassDescription =
+        DATA_OBJECT_TAG_CLASS[dataObject.tagClass];
         const isConstructed = !!(tagByte & (1 << 5));
         dataObject.isConstructed = isConstructed;
 
         let tagNumber = tagByte & 0b00011111;
         let numTagNumberBytes = 1;
         if (tagNumber === 0b00011111) {
-          if (!(bytes[pos] & 0b01111111))
-            throw Error('First byte of the tag number is 0');
+        if (!(bytes[pos] & 0b01111111)) {
+          throw new Error(
+              'DataObject.fromBytesInRange: first byte of the tag number is 0');
+        }
           tagNumber = 0;
           do {
             tagNumber = (tagNumber << 7) + (bytes[pos] & 0b01111111);
@@ -762,27 +772,44 @@
 
         if (isConstructed) {
           dataObject.children = [];
-          while (pos < valueEnd) {
-            // Skip zero bytes inbetween tags
-            if (!bytes[pos]) {
-              ++pos;
-              continue;
-            }
             let child;
-            [child, pos] = DataObject.fromBytesWithStart(bytes, pos);
+        do {
+          [child, pos] = DataObject.fromBytesInRange(bytes, pos, valueEnd);
+          if (child) {
             dataObject.children.push(child);
           }
+        } while (child);
         } else {
           dataObject.value = value;
         }
         return [dataObject, valueEnd];
-      } else {
-        return [null, start];
-      }
     }
 
     static fromBytes(bytes) {
-      return DataObject.fromBytesWithStart(bytes, 0)[0];
+      let dataObjects = [];
+      let pos = 0;
+      let dataObject;
+      do {
+        [dataObject, pos] = DataObject.fromBytesInRange(bytes, pos);
+        if (dataObject) {
+          dataObjects.push(dataObject);
+        }
+      } while(dataObject);
+
+      if (dataObjects.length === 0) {
+        return null;
+      }
+      if (dataObjects.length === 1) {
+        return dataObjects[0];
+      }
+
+      // Create an artificial root object under which all tags of a top-level
+      // tag list are subsumed. This ensures a consistent structure of replies
+      // to GET DATA command among different smart card brands.
+      const artificialRootObject = new DataObject();
+      artificialRootObject.isConstructed = true;
+      artificialRootObject.children = dataObjects;
+      return artificialRootObject;
     }
   }
 
@@ -1018,7 +1045,7 @@
     const pinBytes = util.str2Uint8Array(util.encode_utf8(pin));
     // Verify PIN for decryption
     try {
-      await manager.transmit(new CommandAPDU(0x00, 0x20, 0x00, 0x82, pinBytes));
+      await manager.transmit(new CommandAPDU(0x00, 0x20, 0x00, 0x82, pinBytes,    false));
       // At this point PIN verification has succeeded
       if (cachePin) {
         await chromep.runtime.sendMessage({
