@@ -482,6 +482,8 @@
       this.cardHandle = 0;
       this.activeProtocol = 0;
       this.appletSelected = false;
+      this.supportsChaining = false;
+      this.supportsExtendedLength = false;
     }
 
     get readerShort() {
@@ -562,7 +564,8 @@
     async transmit(commandAPDU) {
       if (this.connected) {
         let data = null;
-        for (const command of commandAPDU.commands) {
+        for (const command of commandAPDU.commands(
+          this.supportsChaining, this.supportsExtendedLength)) {
           const result = await this._execute(this.api.SCardTransmit(this.cardHandle,
             API.SCARD_PCI_T1, Array.from(command)));
           data = await this._getData(result);
@@ -575,6 +578,7 @@
       if (this.connected && !this.appletSelected) {
         await this.transmit(new CommandAPDU(0x00, 0xA4, 0x04, 0x00, new Uint8Array(
           [0xD2, 0x76, 0x00, 0x01, 0x24, 0x01])));
+        await determineOpenPGPCardCapabilities();
         this.appletSelected = true;
       }
     }
@@ -599,29 +603,64 @@
   }
 
   class CommandAPDU {
-    constructor(cla, ins, p1, p2, data) {
-      this.commands = [];
+    constructor(
+      cla, ins, p1, p2, data = new Uint8Array([]), expectResponse = true) {
+       this.header = new Uint8Array([cla, ins, p1, p2]);
+       this.data = data;
+       this.expectResponse = expectResponse;
+    }
 
-      if (!data) {
-        this.commands.push(new Uint8Array([cla, ins, p1, p2, 0x00]));
-        return;
+    commands(supportsChaining, supportsExtendedLength) {
+      const MAX_LC = 255;
+      const MAX_EXTENDED_LC = 65535;
+
+      if (this.data.length === 0 && supportsExtendedLength) {
+          const extendedLe = this.expectResponse ?
+              new Uint8Array([0x00, 0x00, 0x00]) : new Uint8Array([]);
+          return [util.concatUint8Array([this.header, extendedLe])];
       }
-
-      let remainingBytes = data.length;
-
-      while (remainingBytes > 0xFF) {
-        const header = new Uint8Array([cla | 1 << 4, ins, p1, p2, 0xFF]);
-        const body = data.subarray(data.length - remainingBytes, data.length -
-          remainingBytes + 0xFF);
-        const footer = new Uint8Array([0x00]);
-        this.commands.push(util.concatUint8Array([header, body, footer]));
-        remainingBytes -= 0xFF;
+      if (this.data.length === 0) {
+        const le = this.expectResponse ?
+            new Uint8Array([0x00]) : new Uint8Array([]);
+        return [util.concatUint8Array([this.header, le])];
       }
-
-      const header = new Uint8Array([cla, ins, p1, p2, remainingBytes]);
-      const body = data.subarray(data.length - remainingBytes, data.length);
-      const footer = new Uint8Array([0x00]);
-      this.commands.push(util.concatUint8Array([header, body, footer]));
+      if (this.data.length <= MAX_EXTENDED_LC && supportsExtendedLength) {
+        const extendedLc = new Uint8Array(
+            [0x00, this.data.length >> 8, this.data.length & 0xFF]);
+        const extendedLe = this.expectResponse ?
+            new Uint8Array([0x00, 0x00]) : new Uint8Array([]);
+        return [
+          util.concatUint8Array(
+            [this.header, extendedLc, this.data, extendedLe]),
+        ];
+      }
+      if (this.data.length <= MAX_LC || supportsChaining) {
+        let commands = [];
+        let remainingBytes = this.data.length;
+        while (remainingBytes > MAX_LC) {
+          let header = new Uint8Array(this.header);
+          // Set continuation bit in CLA byte.
+          header[0] |= 1 << 4;
+          const lc = new Uint8Array([MAX_LC]);
+          const data = this.data.subarray(
+              this.data.length - remainingBytes,
+              this.data.length - remainingBytes + MAX_LC);
+          const le =
+              this.expectResponse ?
+              new Uint8Array([0x00]) : new Uint8Array([]);
+          commands.push(util.concatUint8Array([header, lc, data, le]));
+          remainingBytes -= MAX_LC;
+        }
+        const lc = new Uint8Array([remainingBytes]);
+        const data = this.data.subarray(this.data.length - remainingBytes);
+        const le =
+            this.expectResponse ? new Uint8Array([0x00]) : new Uint8Array([]);
+        commands.push(util.concatUint8Array([this.header, lc, data, le]));
+        return commands;
+      }
+      throw new Error(
+          `CommandAPDU.commands: data field too long (${this.data.length} ` +
+          ` > ${MAX_LC}) and no support for chaining`);
     }
   }
 
@@ -908,6 +947,36 @@
       await manager.disconnect();
     }
     return readerFound;
+  }
+
+  async function determineOpenPGPCardCapabilities() {
+    const historicalBytes = await manager.transmit(
+      new CommandAPDU(0x00, 0xCA, 0x5F, 0x52)
+    );
+    // Parse data objects in COMPACT-TLV.
+    // First byte is assumed to be 0x00, last three bytes are status bytes.
+    const compactTLVData = historicalBytes.slice(1, -3);
+    let pos = 0;
+    let capabilitiesBytes = null;
+    while (pos < compactTLVData.length) {
+      const tag = compactTLVData[pos];
+      if (tag === 0x73) {
+        capabilitiesBytes = compactTLVData.slice(pos + 1, pos + 4);
+        break;
+      } else {
+        // The length of the tag is encoded in the second nibble.
+        pos += 1 + (tag & 0x0F);
+      }
+    }
+
+    if (capabilitiesBytes) {
+      manager.supportsChaining = capabilitiesBytes[2] & (1 << 7);
+      manager.supportsExtendedLength = capabilitiesBytes[2] & (1 << 6);
+    } else {
+      console.error(
+          'SmartCardManager.determineOpenPGPCardCapabilities: ' +
+          'capabilities tag not found');
+    }
   }
 
   async function getPublicKeyId() {
