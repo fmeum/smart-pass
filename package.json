@@ -8,9 +8,9 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
-    "chrome-promise": "^2.1.2",
-    "openpgp": "^2.6.1",
+    "chrome-promise": "^2.2.2",
     "material-design-icons": "^3.0.1",
-    "mithril": "^1.1.6"
+    "mithril": "^1.1.6",
+    "openpgp": "^4.4"
   }
 }
