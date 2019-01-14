@@ -1,6 +1,8 @@
 smart-pass
 ==========
 
+**UPDATE:** Due to changes to the global keyboard shortcuts on Chrome OS, the default shortcut for this extension has changed to Ctrl+Shift+P (resp. Cmd+Shift+P on Mac). The keyboard shortcut for this extension can always be changed under chrome://extensions/shortcuts.
+
 smart-pass is a Chrome/Chromium extension that automatically fills login forms with passwords encrypted using OpenPGP-enabled smart card. The encrypted password files are fetched from Google Drive and decrypted on the smart card using the [Smart Card Connector](https://chrome.google.com/webstore/detail/smart-card-connector/khpfeaanjngmcnplbdlpegiifgpfgdco) extension. As all operations run either directly on the smart card or in the browser, the extension can be used in cases where a full gpg/smart card stack cannot be installed, e.g., under Chrome OS or without admin/root privileges.
 Password stores can be maintained with [zx2c4's pass](https://www.passwordstore.org) and uploaded to Google Drive using the web UI or a command line tool such as [drive](https://github.com/odeke-em/drive).
 
@@ -31,7 +33,7 @@ Example: If the user `john@doe.com` uses the password `123457` on `mail.example.
 ## Usage
 On first use, both Google Drive and the Smart Card Connector extension will show a warning dialog outlining the permissions requested by the extension.
 
-  1. Click on the extension icon in the toolbar or press Ctrl+Shift+L (Mac: Cmd+Shift+L) to open a list of logins for the current page.
+  1. Click on the extension icon in the toolbar or press Ctrl+Shift+P (Mac: Cmd+Shift+P) to open a list of logins for the current page.
   2. Select a login or search for logins for a different domain by pressing Enter. You can optionally choose to copy the corresponding password to the clipboard instead of filling a login form by clicking on the copy icon.
   3. Enter your smart card's PIN and press Enter. You can optionally choose to cache your PIN until you have either been inactive for 60 seconds or have locked your device. The PIN cache can always be cleared manually from the extension icon's context menu.
   4. After possibly confirming the decryption operation on your smart card reader, you will be logged in automatically.
