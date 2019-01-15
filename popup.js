@@ -882,10 +882,10 @@
       let pgpMessage;
       // First try to read binary signature, if that fails expect ASCII armor
       try {
-        pgpMessage = openpgp.message.read(encryptedPassword);
+        pgpMessage = await openpgp.message.read(encryptedPassword);
       } catch (_) {
         try {
-          pgpMessage = openpgp.message.readArmored(util.bin2str(
+          pgpMessage = await openpgp.message.readArmored(util.Uint8Array_to_str(
             encryptedPassword));
         } catch (error) {
           showMessage('Encrypted file is malformed.');
@@ -903,11 +903,10 @@
       if (!decryptedSessionKey) return;
 
       const symmetricAlgorithm = decryptedSessionKey[0];
-      const checksum = (decryptedSessionKey[decryptedSessionKey.length - 2] <<
-        8) + decryptedSessionKey[decryptedSessionKey.length - 1];
+      const checksum = decryptedSessionKey.subarray(-2);
       const data = decryptedSessionKey.subarray(1, decryptedSessionKey.length -
         2);
-      if (checksum !== util.calc_checksum(data)) {
+      if (!util.equalsUint8Array(checksum, util.write_checksum(data))) {
         showMessage('Checksum mismatch, encrypted file is malformed.');
         return;
       }
@@ -916,14 +915,18 @@
         algorithm: openpgp.enums.read(openpgp.enums.symmetric,
           symmetricAlgorithm)
       };
-      const decryptedMessage = await pgpMessage.decrypt(null, sessionKey,
-        null);
-      let password;
+      const decryptedMessage = await pgpMessage.decrypt(
+        /* privateKeys */ null,
+        /* passwords */ null,
+        [sessionKey]
+      );
+      let passwordStream;
       if (decryptedMessage.packets[0].tag === openpgp.enums.packet.compressed)
-        password = util.bin2str(decryptedMessage.packets[0].packets[0].data);
+        passwordStream = decryptedMessage.packets[0].packets[0].data;
       else
-        password = util.bin2str(decryptedMessage.packets[0].data);
+        passwordStream = decryptedMessage.packets[0].data;
 
+      let password = util.Uint8Array_to_str(await openpgp.stream.readToEnd(passwordStream));
       // Remove trailing carriage returns and line feeds
       password = password.replace(/[\n\r]+$/g, '');
 
@@ -1046,7 +1049,7 @@
       pin = await pinPromise;
       cachePin = document.getElementsByName('cachePinCheckbox')[0].checked;
     }
-    const pinBytes = util.str2Uint8Array(util.encode_utf8(pin));
+    const pinBytes = util.encode_utf8(pin);
     // Verify PIN for decryption
     try {
       await manager.transmit(new CommandAPDU(0x00, 0x20, 0x00, 0x82, pinBytes,    false));
@@ -1095,7 +1098,7 @@
   }
 
   async function decryptOnSmartCard(encryptedSessionKey, publicKeyId) {
-    AppState.fingerprint = util.hexidump(publicKeyId.slice(4)).toUpperCase();
+    AppState.fingerprint = util.Uint8Array_to_hex(publicKeyId.slice(4)).toUpperCase();
     if (!await connectToReaderByPublicKeyId(publicKeyId)) {
       showMessage(`No reader found for key ${AppState.fingerprint}.`);
       return;
